@@ -1,0 +1,50 @@
+import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:provider/provider.dart';
+import 'auth_service.dart';
+import 'login_screen.dart';
+import 'profile_screen.dart';  // ← Đảm bảo import này
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthService()),
+      ],
+      child: MaterialApp(
+        title: 'SmartTasks',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+          useMaterial3: true,
+          fontFamily: 'Inter',
+        ),
+        home: const AuthWrapper(),
+        debugShowCheckedModeBanner: false,
+      ),
+    );
+  }
+}
+
+class AuthWrapper extends StatelessWidget {
+  const AuthWrapper({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context);
+    
+    if (authService.user != null) {
+      return ProfileScreen(user: authService.user!);  // ← Chuyển sang ProfileScreen
+    } else {
+      return const LoginScreen();
+    }
+  }
+}
